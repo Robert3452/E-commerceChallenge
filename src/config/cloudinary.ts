@@ -24,7 +24,7 @@ export const uploads = (file: any, folder: any) => {
     })
 }
 
-export const deleteFiles = (public_ids: []) => {
+export const deleteFiles = (public_ids: any[]) => {
     return new Promise((resolve, reject) => {
         cloudinary.api.delete_resources(public_ids,
             (error: any, result: any) => {

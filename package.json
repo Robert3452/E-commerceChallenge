@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@hapi/boom": "^9.1.0",
+    "@types/fs-extra": "^9.0.1",
     "bcrypt": "^5.0.0",
     "chalk": "^4.1.0",
     "cloudinary": "^1.23.0",

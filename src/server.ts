@@ -2,6 +2,9 @@ import express from 'express';
 import config from './config';
 import cors from 'cors'
 import passport from 'passport';
+import path from 'path'
+import './middleware/jwtStrategies';
+import './middleware/basic';
 
 import routes from './routes';
 import { errorHandler, logErrors, wrapErrors } from './utils/handlers/errorHandler';
@@ -22,5 +25,7 @@ app.use(notFoundHandler);
 app.use(logErrors);
 app.use(wrapErrors);
 app.use(errorHandler);
+
+app.use('/uploads', express.static(path.resolve('uploads')));
 
 export default app;

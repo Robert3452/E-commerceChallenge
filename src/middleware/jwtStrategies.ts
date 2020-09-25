@@ -2,7 +2,7 @@ import passport from 'passport';
 import { Strategy, StrategyOptions, ExtractJwt } from 'passport-jwt';
 import config from '../config';
 import boom from '@hapi/boom';
-import ProfileCrud from '../utils/queries/profile.querie';
+import ProfileCrud from '../utils/queries/profile.queries';
 
 const userCrud = new ProfileCrud();
 
@@ -18,7 +18,7 @@ const jwtStrategy = new Strategy(opts, async (tokenPayload, cb) => {
 
         if (!user) return cb(boom.unauthorized(), false);
 
-        return cb(null, { ...user });
+        return cb(null, user);
 
     } catch (error) {
 

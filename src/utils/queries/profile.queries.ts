@@ -1,5 +1,5 @@
 import User, { IUser } from '../../models/User';
-import CrudAttributes from './querie';
+import CrudAttributes from './queries';
 
 class ProfileCrud implements CrudAttributes<IUser>{
     async store(json: object): Promise<IUser> {
@@ -13,10 +13,11 @@ class ProfileCrud implements CrudAttributes<IUser>{
     }
     async update(id: string, json: object): Promise<IUser | null> {
         try {
-            const userUpadted = await User.updateOne({ _id: id }, { $set: { ...json } });
+            const userUpadted = await User.updateOne({ _id: id }, { $set: json  });
+            // console.log(userUpadted)
             return userUpadted;
         } catch (error) {
-            return error
+            return error;
         }
     }
     async delete(id: string): Promise<Object | IUser | null> {

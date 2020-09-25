@@ -12,14 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const User_1 = __importDefault(require("../../models/User"));
-class ProfileCrud {
+const Product_1 = __importDefault(require("../../models/product/Product"));
+class ProductCrud {
     store(json) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = new User_1.default(json);
-                yield user.save();
-                return user;
+                const product = new Product_1.default(json);
+                yield product.save();
+                return product;
             }
             catch (error) {
                 return error;
@@ -29,9 +29,8 @@ class ProfileCrud {
     update(id, json) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const userUpadted = yield User_1.default.updateOne({ _id: id }, { $set: json });
-                // console.log(userUpadted)
-                return userUpadted;
+                const product = yield Product_1.default.updateOne({ _id: id }, { $set: json });
+                return product;
             }
             catch (error) {
                 return error;
@@ -41,8 +40,8 @@ class ProfileCrud {
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const deletedUser = yield User_1.default.deleteOne({ _id: id });
-                return deletedUser;
+                const product = yield Product_1.default.deleteOne({ _id: id });
+                return product;
             }
             catch (error) {
                 return error;
@@ -52,8 +51,8 @@ class ProfileCrud {
     getAll() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const users = yield User_1.default.find({});
-                return users;
+                const products = yield Product_1.default.find({});
+                return products;
             }
             catch (error) {
                 return error;
@@ -63,35 +62,8 @@ class ProfileCrud {
     findOneById(id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const user = yield User_1.default.findOne({ _id: id });
-                return user;
-            }
-            catch (error) {
-                return error;
-            }
-        });
-    }
-    findByEmail(email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const user = yield User_1.default.findOne({ email });
-                return user;
-            }
-            catch (error) {
-                return error;
-            }
-        });
-    }
-    signinVerify(password, email) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const user = yield User_1.default.findOne({ email });
-                if (!user)
-                    return null;
-                const signedIn = yield user.comparePasswords(password);
-                if (!signedIn)
-                    return null;
-                return user;
+                const product = yield Product_1.default.findById(id);
+                return product;
             }
             catch (error) {
                 return error;
@@ -99,4 +71,4 @@ class ProfileCrud {
         });
     }
 }
-exports.default = ProfileCrud;
+exports.default = ProductCrud;

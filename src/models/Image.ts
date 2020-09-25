@@ -6,6 +6,6 @@ export interface IImage extends Document {
 }
 
 export const imageSchema = new Schema({
-    uri: { type: String, required: true },
+    url: { type: String, required: true },
     id: { type: String, required: true }
 })

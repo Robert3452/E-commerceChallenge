@@ -1,7 +1,8 @@
 import passport from 'passport';
 import { BasicStrategy } from 'passport-http';
 import boom from '@hapi/boom';
-import ProfileCrud from '../utils/queries/profile.querie';
+import ProfileCrud from '../utils/queries/profile.queries';
+
 
 const profileCrud = new ProfileCrud();
 const basicStrategy = new BasicStrategy(async function (email, password, cb) {
