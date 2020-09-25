@@ -11,9 +11,14 @@ router.post('/add',
     jwtMiddleware,
     uploadFile.array('images', 10),
     productServices.createProduct);
+
 router.put('/update/:id',
     jwtMiddleware,
     uploadFile.array('images', 10),
-    productServices.updateProduct)
+    productServices.updateProduct);
+
+router.delete('/delete/:id',
+    jwtMiddleware,
+    productServices.deleteProduct);
 
 export default router;

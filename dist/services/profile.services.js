@@ -43,25 +43,22 @@ const profileCrud = new profile_queries_1.default();
 const uploader = (path) => __awaiter(void 0, void 0, void 0, function* () { return yield cloudinary.uploads(path, 'avatar'); });
 const deleteImage = (publicIds) => __awaiter(void 0, void 0, void 0, function* () { return yield cloudinary.deleteFiles(publicIds); });
 exports.setAvatar = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const file = req.file;
+    const { path } = file;
+    const newPath = yield uploader(path);
+    const user = req.user;
     try {
-        const file = req.file;
-        const { path } = file;
-        const newPath = yield uploader(path);
-        const user = req.user;
-        let response;
         if (user.avatar)
-            response = yield deleteImage([user.avatar.id]);
-        console.log(`Response`, response);
+            yield deleteImage([user.avatar.id]);
         if (!user)
             throw boom_1.default.unauthorized('You have to register');
         user.avatar = Object.assign({}, newPath);
-        fs_extra_1.default.unlinkSync(path);
+        yield fs_extra_1.default.unlink(path);
         const updateUser = yield profileCrud.update(user._id, user);
         if (!updateUser)
             throw boom_1.default.badRequest('User not found');
         return res.status(201).json({
             data: newPath,
-            avatar: updateUser.avatar,
             message: 'Image uploaded successfully'
         });
     }
@@ -70,14 +67,13 @@ exports.setAvatar = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.unSetAvatar = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // const { path } = req.file;
-    const user = req.user;
-    var response;
-    if (user.avatar)
-        response = yield deleteImage([user.avatar.id]);
-    else
-        response = { message: "NO response" };
-    return res.status(200).json(response);
+    var user = req.user;
+    if (user.avatar) {
+        yield deleteImage([user.avatar.id]);
+        user.avatar = {};
+    }
+    const userUpdated = yield profileCrud.update(user._id, user);
+    return res.status(200).json({ data: userUpdated });
 });
 exports.signin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     passport_1.default.authenticate('basic', (error, user) => {

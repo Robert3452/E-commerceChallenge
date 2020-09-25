@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProduct = exports.createProduct = exports.getProduct = exports.getProducts = void 0;
+exports.deleteProduct = exports.updateProduct = exports.createProduct = exports.getProduct = exports.getProducts = void 0;
 const product_queries_1 = __importDefault(require("../utils/queries/product.queries"));
 const boom_1 = __importDefault(require("@hapi/boom"));
 const cloudinary = __importStar(require("../config/cloudinary"));
@@ -103,5 +103,23 @@ exports.updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     }
     catch (error) {
         next(error);
+    }
+});
+exports.deleteProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    try {
+        const product = yield productCrud.findOneById(id);
+        if (!product)
+            return next(boom_1.default.badRequest('Sorry product not found'));
+        const publicIds = product.images.map((image) => image.id);
+        yield deleteImage(publicIds);
+        yield product.deleteOne();
+        return res.status(200).json({
+            message: "Product deleted successfully",
+            productId: product._id
+        });
+    }
+    catch (error) {
+        return next(error);
     }
 });

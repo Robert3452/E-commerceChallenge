@@ -21,7 +21,7 @@ const userSchema = new mongoose_1.Schema({
     names: { required: true, type: String, maxlength: 50 },
     lastnames: { required: true, type: String, maxlength: 50 },
     password: { required: true, type: String, minlength: 8 },
-    email: { required: true, type: String },
+    email: { required: true, type: String, unique: true },
     addresses: { type: Address_1.addressSchema },
     phone: { type: String },
     dni: { type: String, maxlength: 8 },

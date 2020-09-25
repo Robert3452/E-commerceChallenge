@@ -32,4 +32,5 @@ router.get('/', productServices.getProducts);
 router.get('/:id', productServices.getProduct);
 router.post('/add', jwtMiddleware, multerMid_1.uploadFile.array('images', 10), productServices.createProduct);
 router.put('/update/:id', jwtMiddleware, multerMid_1.uploadFile.array('images', 10), productServices.updateProduct);
+router.delete('/delete/:id', jwtMiddleware, productServices.deleteProduct);
 exports.default = router;

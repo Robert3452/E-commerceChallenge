@@ -9,7 +9,7 @@ import fs from 'fs-extra';
 const productCrud = new ProductCrud();
 
 const uploader = async (path: any) => await cloudinary.uploads(path, 'products');
-const deleteImage = async (publicIds: [any]) => await cloudinary.deleteFiles(publicIds);
+const deleteImage = async (publicIds: string[]) => await cloudinary.deleteFiles(publicIds);
 
 export const getProducts = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -94,5 +94,26 @@ export const updateProduct = async (req: Request, res: Response, next: NextFunct
         });
     } catch (error) {
         next(error)
+    }
+}
+
+export const deleteProduct = async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    try {
+        const product = await productCrud.findOneById(id);
+        if (!product) return next(boom.badRequest('Sorry product not found'));
+
+        const publicIds: string[] = product.images.map((image) => image.id)
+
+        await deleteImage(publicIds);
+        await product.deleteOne();
+
+        return res.status(200).json({
+            message: "Product deleted successfully",
+            productId: product._id
+        })
+
+    } catch (error) {
+        return next(error);
     }
 }

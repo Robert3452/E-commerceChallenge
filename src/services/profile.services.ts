@@ -15,23 +15,19 @@ const uploader = async (path: string) => await cloudinary.uploads(path, 'avatar'
 const deleteImage = async (publicIds: [any]) => await cloudinary.deleteFiles(publicIds);
 
 export const setAvatar = async (req: Request, res: Response, next: NextFunction) => {
+    const file: any = req.file;
+    const { path } = file;
+    const newPath: any = await uploader(path);
+
+    const user: any = req.user;
 
     try {
-        const file: any = req.file;
-        const { path } = file;
-        const newPath: any = await uploader(path);
 
-        const user: any = req.user;
-
-        let response: any;
-        if (user.avatar)
-            response = await deleteImage([user.avatar.id])
-        console.log(`Response`, response)
-
+        if (user.avatar) await deleteImage([user.avatar.id])
         if (!user) throw boom.unauthorized('You have to register')
 
         user.avatar = { ...newPath };
-        fs.unlinkSync(path);
+        await fs.unlink(path);
 
         const updateUser = await profileCrud.update(user._id, user);
         if (!updateUser) throw boom.badRequest('User not found');
@@ -39,7 +35,6 @@ export const setAvatar = async (req: Request, res: Response, next: NextFunction)
 
         return res.status(201).json({
             data: newPath,
-            avatar: updateUser.avatar,
             message: 'Image uploaded successfully'
         });
 
@@ -49,16 +44,15 @@ export const setAvatar = async (req: Request, res: Response, next: NextFunction)
 }
 
 export const unSetAvatar = async (req: Request, res: Response, next: NextFunction) => {
-    // const { path } = req.file;
-    const user: any = req.user;
+    var user: any = req.user;
 
-    var response: any;
+    if (user.avatar) {
+        await deleteImage([user.avatar.id]);
+        user.avatar = {}
+    }
+    const userUpdated = await profileCrud.update(user._id!!, user);
 
-    if (user.avatar)
-        response = await deleteImage([user.avatar.id]);
-    else
-        response = { message: "NO response" }
-    return res.status(200).json(response)
+    return res.status(200).json({ data: userUpdated })
 }
 
 export const signin = async (req: Request, res: Response, next: NextFunction) => {
