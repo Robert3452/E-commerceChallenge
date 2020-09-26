@@ -11,3 +11,4 @@ exports.variationSchema = new mongoose_1.Schema({
     price: { type: Number, required: true },
     discounts: { type: [Discount_1.discountSchema] },
 });
+exports.default = mongoose_1.model('product-variation', exports.variationSchema);

@@ -15,6 +15,6 @@ const config = {
     apikey: process.env.CLOUDINARY_API_KEY,
     apisecret: process.env.CLOUDINARY_API_SECRET,
     culqiPrivateKey: process.env.PRIVATE_KEY,
-    culqiApiSecret: process.env.PUBLIC_KEY
+    culqiPublicKey: process.env.PUBLIC_KEY
 }
 export default config;

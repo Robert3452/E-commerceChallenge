@@ -1,8 +1,9 @@
 import { Schema, Document, model, SchemaTypes } from 'mongoose';
 import { addressSchema, IAddress } from './Address';
 import { IImage, imageSchema } from './Image';
-import { IProduct } from './product/Product';
+import { IDetail, detailSchema } from './sale/SaleDetail'
 import bcrypt from 'bcrypt';
+import { IProduct } from './product/Product';
 
 export interface IUser extends Document {
     names: string,
@@ -14,6 +15,7 @@ export interface IUser extends Document {
     dni: string,
     isAdmin: boolean,
     wishList: IProduct['_id'],
+    shoppingCart: IDetail[],
     avatar: IImage,
     comparePasswords: (password: string) => Promise<boolean>
 }
@@ -29,7 +31,8 @@ const userSchema = new Schema({
     isAdmin: { type: Boolean, default: false },
     apiKeyToken: { type: String },
     dni: { type: String, maxlength: 8 },
-    wishList: { type: [SchemaTypes.ObjectId], ref: 'product' },
+    wishList: { type: [detailSchema] },
+    shoppingCart: { type: [SchemaTypes.ObjectId], ref: 'detail' },
 })
 
 userSchema.pre<IUser>('save', async function (next) {
