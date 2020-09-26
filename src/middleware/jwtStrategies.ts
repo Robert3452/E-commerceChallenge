@@ -18,7 +18,7 @@ const jwtStrategy = new Strategy(opts, async (tokenPayload, cb) => {
 
         if (!user) return cb(boom.unauthorized(), false);
 
-        return cb(null, user);
+        return cb(null, { user, scopes: tokenPayload.scopes });
 
     } catch (error) {
 

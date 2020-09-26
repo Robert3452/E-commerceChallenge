@@ -38,6 +38,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = __importDefault(require("../config"));
 const profile_queries_1 = __importDefault(require("../utils/queries/profile.queries"));
 const fs_extra_1 = __importDefault(require("fs-extra"));
+const scope_queries_1 = __importDefault(require("../utils/queries/scope.queries"));
 const cloudinary = __importStar(require("../config/cloudinary"));
 const profileCrud = new profile_queries_1.default();
 const uploader = (path) => __awaiter(void 0, void 0, void 0, function* () { return yield cloudinary.uploads(path, 'avatar'); });
@@ -82,14 +83,24 @@ exports.signin = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         req.login(user, { session: false }, (error) => __awaiter(void 0, void 0, void 0, function* () {
             if (error)
                 next(error);
+            const apiKeys = new scope_queries_1.default();
+            const publicToken = user.isAdmin ?
+                config_1.default.adminApiKeysToken :
+                config_1.default.publicApiKeysToken;
+            if (!publicToken)
+                return next(boom_1.default.unauthorized('Public token scope invalid'));
+            const apiKey = yield apiKeys.findByToken(publicToken);
+            if (!apiKey)
+                return next(boom_1.default.unauthorized('scopes not found'));
             const { _id: id, name, email } = user;
             const payload = {
                 sub: id,
                 name,
-                email
+                email,
+                scopes: apiKey.scopes
             };
             const token = jsonwebtoken_1.default.sign(payload, config_1.default.authJwtSecret, {
-                expiresIn: '15m'
+                expiresIn: '30m'
             });
             return res.status(200).json({ token, user: { id, name, email } });
         }));

@@ -5,7 +5,7 @@ import jwt from 'jsonwebtoken'
 import config from '../config';
 import ProfileCrud from '../utils/queries/profile.queries';
 import fs from 'fs-extra';
-
+import ApiKeys from '../utils/queries/scope.queries';
 import * as cloudinary from '../config/cloudinary';
 
 const profileCrud = new ProfileCrud();
@@ -64,16 +64,28 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
             if (error)
                 next(error)
 
+            const apiKeys = new ApiKeys();
+            const publicToken = user.isAdmin ?
+                config.adminApiKeysToken :
+                config.publicApiKeysToken;
+
+            if (!publicToken) return next(boom.unauthorized('Public token scope invalid'))
+
+            const apiKey = await apiKeys.findByToken(publicToken);
+
+            if (!apiKey) return next(boom.unauthorized('scopes not found'));
 
             const { _id: id, name, email } = user;
+
             const payload = {
                 sub: id,
                 name,
-                email
+                email,
+                scopes: apiKey.scopes
             };
 
             const token = jwt.sign(payload, config.authJwtSecret!!, {
-                expiresIn: '15m'
+                expiresIn: '30m'
             });
             return res.status(200).json({ token, user: { id, name, email } });
 

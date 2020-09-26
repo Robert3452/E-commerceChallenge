@@ -21,7 +21,6 @@ export const getProducts = async (req: Request, res: Response, next: NextFunctio
     }
 }
 
-
 export const getProduct = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
@@ -61,8 +60,6 @@ export const createProduct = async (req: Request, res: Response, next: NextFunct
         return next(error);
     }
 }
-
-
 
 export const updateProduct = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;

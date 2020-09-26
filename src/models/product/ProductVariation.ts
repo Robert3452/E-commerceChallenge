@@ -1,4 +1,4 @@
-import { Schema, Document } from 'mongoose';
+import { Schema, Document, model } from 'mongoose';
 import { colorSchema, IColor } from './Color';
 import { discountSchema, IDiscount } from './Discount';
 
@@ -17,3 +17,5 @@ export const variationSchema = new Schema({
     price: { type: Number, required: true },
     discounts: { type: [discountSchema] },
 })
+
+export default model<IVariation>('product-variation', variationSchema);

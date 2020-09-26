@@ -27,7 +27,7 @@ const jwtStrategy = new passport_jwt_1.Strategy(opts, (tokenPayload, cb) => __aw
         const user = yield userCrud.findByEmail(tokenPayload.email);
         if (!user)
             return cb(boom_1.default.unauthorized(), false);
-        return cb(null, user);
+        return cb(null, { user, scopes: tokenPayload.scopes });
     }
     catch (error) {
     }

@@ -24,6 +24,8 @@ const userSchema = new mongoose_1.Schema({
     email: { required: true, type: String, unique: true },
     addresses: { type: Address_1.addressSchema },
     phone: { type: String },
+    isAdmin: { type: Boolean, default: false },
+    apiKeyToken: { type: String },
     dni: { type: String, maxlength: 8 },
     wishList: { type: [mongoose_1.SchemaTypes.ObjectId], ref: 'product' },
 });

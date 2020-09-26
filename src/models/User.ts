@@ -12,6 +12,7 @@ export interface IUser extends Document {
     addresses: IAddress[],
     phone: string,
     dni: string,
+    isAdmin: boolean,
     wishList: IProduct['_id'],
     avatar: IImage,
     comparePasswords: (password: string) => Promise<boolean>
@@ -25,6 +26,8 @@ const userSchema = new Schema({
     email: { required: true, type: String, unique: true },
     addresses: { type: addressSchema },
     phone: { type: String },
+    isAdmin: { type: Boolean, default: false },
+    apiKeyToken: { type: String },
     dni: { type: String, maxlength: 8 },
     wishList: { type: [SchemaTypes.ObjectId], ref: 'product' },
 })
