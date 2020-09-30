@@ -1,3 +1,4 @@
+import { addressSchema, IAddress } from '../../models/Address';
 import User, { IUser } from '../../models/User';
 import CrudAttributes from './queries';
 
@@ -13,11 +14,23 @@ class ProfileCrud implements CrudAttributes<IUser>{
     }
     async update(id: string, json: object): Promise<IUser | null> {
         try {
-            const userUpadted = await User.updateOne({ _id: id }, { $set: json  });
-            // console.log(userUpadted)
+            const userUpadted = await User.updateOne({ _id: id }, { $set: json });
             return userUpadted;
         } catch (error) {
             return error;
+        }
+    }
+
+    async setAddress(id: string, json: any): Promise<string> {
+        try {
+            const user = await User
+                .findOneAndUpdate({ _id: id }, { $push: { addresses: json } }, { new: true })
+            if (!user) throw "User not found"
+            const addressSelected = user.addresses.find(el => el.address === json.address)
+            return addressSelected?._id
+
+        } catch (error) {
+            throw error
         }
     }
     async delete(id: string): Promise<Object | IUser | null> {

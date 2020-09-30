@@ -4,14 +4,13 @@ import { IUser } from '../User';
 import { IDetail, detailSchema } from './SaleDetail';
 
 export interface ISale extends Document {
-    address: IAddress,
+    address: IAddress['_id'],
     total: number,
     emissionDate: Date,
     cancelationDate: Date,
     orders: IDetail[],
     stateOfSelling: string,
     igv: number,
-
     idBuyer: IUser["_id"]
     names: string,
     lastnames: string,
@@ -20,9 +19,9 @@ export interface ISale extends Document {
 }
 
 const saleSchema = new Schema({
-    address: { type: addressSchema, required: true },
+    address: { type: Schema.Types.ObjectId, required: true, ref: 'address' },
     total: { type: Number },
-    emissionDate: { type: Date },
+    emissionDate: { type: Date, default: new Date() },
     cancelationDate: { type: Date },
     orders: { type: [detailSchema] },
     stateOfSelling: { type: String },

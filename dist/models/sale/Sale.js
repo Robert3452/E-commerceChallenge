@@ -1,12 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
-const Address_1 = require("../Address");
 const SaleDetail_1 = require("./SaleDetail");
 const saleSchema = new mongoose_1.Schema({
-    address: { type: Address_1.addressSchema, required: true },
+    address: { type: mongoose_1.Schema.Types.ObjectId, required: true, ref: 'address' },
     total: { type: Number },
-    emissionDate: { type: Date },
+    emissionDate: { type: Date, default: new Date() },
     cancelationDate: { type: Date },
     orders: { type: [SaleDetail_1.detailSchema] },
     stateOfSelling: { type: String },

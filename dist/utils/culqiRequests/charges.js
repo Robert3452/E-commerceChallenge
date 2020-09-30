@@ -22,7 +22,7 @@ exports.createCharge = (amount, currency_code, email, source_id) => __awaiter(vo
         amount,
         currency_code,
         email,
-        source_id
+        source_id //previous token
     };
     const request = {
         method: 'post',

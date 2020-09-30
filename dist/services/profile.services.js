@@ -48,7 +48,6 @@ exports.saveShoppingCart = (req, res, next) => __awaiter(void 0, void 0, void 0,
     const { body: shoppingCart } = req;
     try {
         const updatedUser = yield profileCrud.update(user._id, { shoppingCart });
-        console.log(updatedUser);
         return res.status(200).json({
             message: "shoppingCart saved successfully",
         });

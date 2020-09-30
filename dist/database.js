@@ -10,7 +10,8 @@ const dbUser = encodeURIComponent(config_1.default.dbUser);
 const dbOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
+    useFindAndModify: false
 };
 const dbUri = `mongodb+srv://${dbUser}:${dbPassword}@${config_1.default.dbHost}/${config_1.default.dbName}?retryWrites=true&w=majority`;
 mongoose_1.default.connect(dbUri, dbOptions);

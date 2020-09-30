@@ -10,7 +10,7 @@ export const createCharge = async (amount: string, currency_code: string, email:
         amount,
         currency_code,
         email,
-        source_id
+        source_id //previous token
     }
 
     const request = {

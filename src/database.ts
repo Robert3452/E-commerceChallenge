@@ -7,7 +7,8 @@ const dbUser = encodeURIComponent(config.dbUser!!);
 const dbOptions: ConnectionOptions = {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useCreateIndex: true
+    useCreateIndex: true,
+    useFindAndModify: false
 
 }
 

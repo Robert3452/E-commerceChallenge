@@ -7,6 +7,8 @@ const express_1 = require("express");
 const router = express_1.Router();
 const profile_routes_1 = __importDefault(require("./profile.routes"));
 const products_routes_1 = __importDefault(require("./products.routes"));
+const sales_routes_1 = __importDefault(require("./sales.routes"));
 router.use('/profile', profile_routes_1.default);
 router.use('/products', products_routes_1.default);
+router.use('/sales', sales_routes_1.default);
 exports.default = router;

@@ -26,6 +26,7 @@ const express_1 = require("express");
 const profileServices = __importStar(require("../services/profile.services"));
 const passport_1 = __importDefault(require("passport"));
 const multerMid_1 = require("../middleware/multerMid");
+// import sValidator from '../middleware/scopesValidationHandler'
 const router = express_1.Router();
 const jwtMiddleware = passport_1.default.authenticate('jwt', { session: false });
 router.post('/auth/signin', profileServices.signin);

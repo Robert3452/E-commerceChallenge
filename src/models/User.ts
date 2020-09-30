@@ -1,9 +1,9 @@
-import { Schema, Document, model, SchemaTypes } from 'mongoose';
+import { Schema, Document, model } from 'mongoose';
 import { addressSchema, IAddress } from './Address';
 import { IImage, imageSchema } from './Image';
-import { IDetail, detailSchema } from './sale/SaleDetail'
 import bcrypt from 'bcrypt';
 import { IProduct } from './product/Product';
+import { IShoppingCart, shoppingCartSchema } from './ShoppingCart';
 
 export interface IUser extends Document {
     names: string,
@@ -15,7 +15,7 @@ export interface IUser extends Document {
     dni: string,
     isAdmin: boolean,
     wishList: IProduct['_id'],
-    shoppingCart: IDetail[],
+    shoppingCart: IShoppingCart[],
     avatar: IImage,
     comparePasswords: (password: string) => Promise<boolean>
 }
@@ -26,14 +26,14 @@ const userSchema = new Schema({
     lastnames: { required: true, type: String, maxlength: 50 },
     password: { required: true, type: String, minlength: 8 },
     email: { required: true, type: String, unique: true },
-    addresses: { type: addressSchema },
+    addresses: { type: [addressSchema] },
     phone: { type: String },
     isAdmin: { type: Boolean, default: false },
     apiKeyToken: { type: String },
     dni: { type: String, maxlength: 8 },
-    wishList: { type: [detailSchema] },
-    shoppingCart: { type: [SchemaTypes.ObjectId], ref: 'detail' },
-})
+    wishList: { type: [Schema.Types.ObjectId], ref: 'product' },
+    shoppingCart: { type: [shoppingCartSchema] },
+});
 
 userSchema.pre<IUser>('save', async function (next) {
     const user = this;

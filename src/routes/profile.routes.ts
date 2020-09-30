@@ -2,7 +2,7 @@ import { Router } from 'express';
 import * as profileServices from '../services/profile.services';
 import passport from 'passport';
 import { uploadFile } from '../middleware/multerMid';
-import sValidator from '../middleware/scopesValidationHandler'
+// import sValidator from '../middleware/scopesValidationHandler'
 const router = Router();
 
 const jwtMiddleware = passport.authenticate('jwt', { session: false });

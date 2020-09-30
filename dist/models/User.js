@@ -15,21 +15,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const Address_1 = require("./Address");
 const Image_1 = require("./Image");
-const SaleDetail_1 = require("./sale/SaleDetail");
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const ShoppingCart_1 = require("./ShoppingCart");
 const userSchema = new mongoose_1.Schema({
     avatar: { required: false, type: Image_1.imageSchema },
     names: { required: true, type: String, maxlength: 50 },
     lastnames: { required: true, type: String, maxlength: 50 },
     password: { required: true, type: String, minlength: 8 },
     email: { required: true, type: String, unique: true },
-    addresses: { type: Address_1.addressSchema },
+    addresses: { type: [Address_1.addressSchema] },
     phone: { type: String },
     isAdmin: { type: Boolean, default: false },
     apiKeyToken: { type: String },
     dni: { type: String, maxlength: 8 },
-    wishList: { type: [SaleDetail_1.detailSchema] },
-    shoppingCart: { type: [mongoose_1.SchemaTypes.ObjectId], ref: 'detail' },
+    wishList: { type: [mongoose_1.Schema.Types.ObjectId], ref: 'product' },
+    shoppingCart: { type: [ShoppingCart_1.shoppingCartSchema] },
 });
 userSchema.pre('save', function (next) {
     return __awaiter(this, void 0, void 0, function* () {

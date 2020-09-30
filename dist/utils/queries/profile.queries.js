@@ -30,11 +30,25 @@ class ProfileCrud {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const userUpadted = yield User_1.default.updateOne({ _id: id }, { $set: json });
-                // console.log(userUpadted)
                 return userUpadted;
             }
             catch (error) {
                 return error;
+            }
+        });
+    }
+    setAddress(id, json) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield User_1.default
+                    .findOneAndUpdate({ _id: id }, { $push: { addresses: json } }, { new: true });
+                if (!user)
+                    throw "User not found";
+                const addressSelected = user.addresses.find(el => el.address === json.address);
+                return addressSelected === null || addressSelected === void 0 ? void 0 : addressSelected._id;
+            }
+            catch (error) {
+                throw error;
             }
         });
     }
