@@ -42,7 +42,7 @@ const registerAddress = async (user: any, address: IAddressRequest): Promise<str
 
             return idAddress;
         }
-        if (Object.getOwnPropertyNames(address).length < 2) throw 'Address body not '
+        if (Object.getOwnPropertyNames(address).length < 2) throw 'Address body request not found'
 
         idAddress = await profileCrud.setAddress(foundUser._id, address)
         return idAddress
@@ -53,26 +53,84 @@ const registerAddress = async (user: any, address: IAddressRequest): Promise<str
 }
 
 export const buy = async (req: Request, res: Response, next: NextFunction) => {
+
+    const {
+        shoppingCart,
+        total,
+        phone,
+        idAddress,
+        paymentType: { type, card_number, cvv, expiration_month, expiration_year, email
+        }
+    } = req.body;
+
+    const tokenData: any = req.user;
+    const user = tokenData.user;
     var response;
+
+    try {
+
+        let sale = {
+            address: idAddress,
+            total,
+            cancelationDate: new Date(),
+            orders: shoppingCart,
+            stateOfSelling: "completed",
+            idBuyer: user._id,
+            names: user.names,
+            lastnames: user.lastnames,
+            email: user.email,
+            phone: user.phone || phone
+
+        }
+        var message
+        /** SWITCH Of PAYMENTTYPES  **/
+        switch (type) {
+            case "card":
+                response = await paymentModes.culqiPaymentMode(card_number, cvv, expiration_month, expiration_year, email, Math.round(total) / 100);
+                /**UPDATE THE STOCK PENDANT*/
+                // await productCrud.updateDetails(idProds, idVariations, quantities);
+                message = await salesCrud.store(sale);
+                break;
+            case "cash":
+                response = { message: "Not implemented yet" }
+                break;
+            default:
+                response = { message: "Payment type not match" }
+                break;
+        }
+
+        return res.status(200).json({ outcome: response, message: message || "Nothing to do" });
+
+    } catch (error) {
+        return next(error)
+    }
+}
+
+
+export const setAddress = async (req: Request, res: Response, next: NextFunction) => {
+    let { body: address } = req;
+    let tokenData: any = req.user;
+    let user = tokenData.user;
+
+    try {
+        const idAddress = await registerAddress(user, address);
+
+        return res.status(200).json({ address: idAddress });
+    } catch (error) {
+        return next(error)
+    }
+}
+export const makeCart = async (req: Request, res: Response, next: NextFunction) => {
+
+    const { body: shoppingCart } = req;
     let idProds: string[] = new Array();
     let idVariations: string[] = new Array();
     let quantities: number[] = new Array();
     let subTotals: number[] = new Array();
-    // let stocks: number[] = new Array();
     let total: number = 0;
-    let {
-        phone,
-        shoppingCart,
-        paymentType: { type, card_number, cvv, expiration_month, expiration_year, email },
-        address
-    } = req.body;
-
-    let obj: any = req.user;
-    let user = obj.user;
 
     try {
-
-        shoppingCart.map((el: any, index: number) => {
+        shoppingCart.map((el: any) => {
             idProds.push(el.idProduct);
             idVariations.push(el.idVariation);
             quantities.push(el.quantity);
@@ -81,9 +139,6 @@ export const buy = async (req: Request, res: Response, next: NextFunction) => {
         const products = await productCrud.findManyVariations(idProds, idVariations)
 
         products.map((product, index) => {
-
-
-            // stocks.push(product.variations.stock);
             subTotals.push(product.variations.price * quantities[index]);
             total += subTotals[index];
 
@@ -94,41 +149,9 @@ export const buy = async (req: Request, res: Response, next: NextFunction) => {
                 subtotal: subTotals[index]
             }
         });
-        const addressRegistered = await registerAddress(user, address);
 
-        let sale = {
-            address: addressRegistered,
-            total,
-            cancelationDate: new Date(),
-            orders: shoppingCart,
-            stateOfSelling: "finished",
-            idBuyer: user._id,
-            names: user.names,
-            lastnames: user.lastnames,
-            email: user.email,
-            phone: user.phone || phone
-
-        }
-        var x
-        /** SWITCH Of PAYMENTTYPES  **/
-        switch (type) {
-            case "card":
-                response = await paymentModes.culqiPaymentMode(card_number, cvv, expiration_month, expiration_year, email, total);
-                await productCrud.updateDetails(idProds, idVariations, quantities);
-                x = await salesCrud.store(sale);
-                break;
-            case "cash":
-                response = { message: "Not implemented yet" }
-                break;
-            default:
-                response = { message: "Payment type not match" }
-                break;
-        }
-
-        return res.status(200).json({ outcome: response.outcome, message: x || "Nothing to do" });
-
+        return res.status(200).json({ shoppingCart, total });
     } catch (error) {
-        return next(error)
+
     }
 }
-

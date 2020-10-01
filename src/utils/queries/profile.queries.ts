@@ -20,7 +20,45 @@ class ProfileCrud implements CrudAttributes<IUser>{
             return error;
         }
     }
+    async getAddresses(email: string): Promise<IAddress[] | Array<any>> {
+        try {
+            const user = await this.findByEmail(email);
+            if (!user) throw 'user not found'
+            const addresses = user.addresses || [];
 
+            return addresses;
+
+        } catch (error) {
+            throw error
+        }
+
+    }
+
+    async updateAddress(email: string, id: string, body: any): Promise<string> {
+        try {
+
+            const user = await this.findByEmail(email);
+            if (!user) throw 'user not found';
+            let current: number = 0;
+
+            let address = user.addresses.find((el, index) => {
+                if (el._id === id) {
+                    current = index;
+                    return el
+                }
+            });
+
+            if (!address) throw 'not found'
+
+            address = <IAddress>{ ...address, ...body };
+            console.log(address)
+            user.addresses[current] = address;
+            await user.updateOne({});
+            return address._id;
+        } catch (error) {
+            throw error
+        }
+    }
     async setAddress(id: string, json: any): Promise<string> {
         try {
             const user = await User

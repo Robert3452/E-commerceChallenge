@@ -56,14 +56,13 @@ exports.buy = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
     let obj = req.user;
     let user = obj.user;
     try {
-        shoppingCart.map((el, index) => {
+        shoppingCart.map((el) => {
             idProds.push(el.idProduct);
             idVariations.push(el.idVariation);
             quantities.push(el.quantity);
         });
         const products = yield productCrud.findManyVariations(idProds, idVariations);
         products.map((product, index) => {
-            // stocks.push(product.variations.stock);
             subTotals.push(product.variations.price * quantities[index]);
             total += subTotals[index];
             shoppingCart[index] = Object.assign(Object.assign({}, shoppingCart[index]), { name: products[index].name, unitCost: products[index].variations.price, subtotal: subTotals[index] });
@@ -81,13 +80,13 @@ exports.buy = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             email: user.email,
             phone: user.phone || phone
         };
-        var x;
+        var message;
         /** SWITCH Of PAYMENTTYPES  **/
         switch (type) {
             case "card":
-                response = yield paymentModes.culqiPaymentMode(card_number, cvv, expiration_month, expiration_year, email, total);
+                response = yield paymentModes.culqiPaymentMode(card_number, cvv, expiration_month, expiration_year, email, Math.round(total) / 100);
                 yield productCrud.updateDetails(idProds, idVariations, quantities);
-                x = yield salesCrud.store(sale);
+                message = yield salesCrud.store(sale);
                 break;
             case "cash":
                 response = { message: "Not implemented yet" };
@@ -96,7 +95,7 @@ exports.buy = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
                 response = { message: "Payment type not match" };
                 break;
         }
-        return res.status(200).json({ outcome: response.outcome, message: x || "Nothing to do" });
+        return res.status(200).json({ outcome: response, message: message || "Nothing to do" });
     }
     catch (error) {
         return next(error);
