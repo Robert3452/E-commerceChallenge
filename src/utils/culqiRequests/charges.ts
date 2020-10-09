@@ -1,5 +1,6 @@
 import fetch from 'node-fetch';
 import config from '../../config';
+import CulqiError from './Culqi';
 
 const apiCharge = "https://api.culqi.com/v2/charges";
 
@@ -26,9 +27,10 @@ export const createCharge = async (amount: string, currency_code: string, email:
     try {
         const response = await fetch(apiCharge, request);
         const json = await response.json();
+        if (json.object === 'error') throw new CulqiError(json)
         return json;
     } catch (error) {
-        return error
+        throw error
     }
 
 }

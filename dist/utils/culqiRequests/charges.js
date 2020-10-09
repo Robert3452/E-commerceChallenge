@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createCharge = void 0;
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const config_1 = __importDefault(require("../../config"));
+const Culqi_1 = __importDefault(require("./Culqi"));
 const apiCharge = "https://api.culqi.com/v2/charges";
 const private_key = config_1.default.culqiPrivateKey || "";
 exports.createCharge = (amount, currency_code, email, source_id) => __awaiter(void 0, void 0, void 0, function* () {
@@ -35,9 +36,11 @@ exports.createCharge = (amount, currency_code, email, source_id) => __awaiter(vo
     try {
         const response = yield node_fetch_1.default(apiCharge, request);
         const json = yield response.json();
+        if (json.object === 'error')
+            throw new Culqi_1.default(json);
         return json;
     }
     catch (error) {
-        return error;
+        throw error;
     }
 });

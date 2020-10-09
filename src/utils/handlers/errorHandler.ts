@@ -1,6 +1,7 @@
 import { ErrorRequestHandler, Request, Response, NextFunction } from 'express'
 import boom from '@hapi/boom';
 import config from '../../config';
+import CulqiError from '../culqiRequests/Culqi';
 
 function withErrorStack(error: ErrorRequestHandler, stack: any) {
     if (config.dev)
@@ -18,6 +19,9 @@ export function logErrors(err: ErrorRequestHandler, req: Request, res: Response,
 export function wrapErrors(err: ErrorRequestHandler | any, req: Request, res: Response, next: NextFunction) {
     if (err.hasOwnProperty('_message') || err.hasOwnProperty('path') || err.hasOwnProperty('kind'))
         return next(boom.badRequest(err))
+
+    if (err instanceof CulqiError)
+        return next(boom.badRequest(config.dev ? err.merchant_message : err.user_message))
 
     if (!err.isBoom) {
         return next(boom.badImplementation(err));

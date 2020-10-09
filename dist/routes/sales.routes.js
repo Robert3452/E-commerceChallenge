@@ -27,5 +27,7 @@ const saleServices = __importStar(require("../services/sales.services"));
 const passport_1 = __importDefault(require("passport"));
 const jwtMiddleware = passport_1.default.authenticate('jwt', { session: false });
 const router = express_1.Router();
+router.post('/store-cart', saleServices.makeCart);
+router.post('/set-address', jwtMiddleware, saleServices.setAddress);
 router.post('/buy', jwtMiddleware, saleServices.buy);
 exports.default = router;

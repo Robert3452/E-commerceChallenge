@@ -37,6 +37,46 @@ class ProfileCrud {
             }
         });
     }
+    getAddresses(email) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this.findByEmail(email);
+                if (!user)
+                    throw 'user not found';
+                const addresses = user.addresses || [];
+                return addresses;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
+    updateAddress(email, id, body) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const user = yield this.findByEmail(email);
+                if (!user)
+                    throw 'user not found';
+                let current = 0;
+                let address = user.addresses.find((el, index) => {
+                    if (el._id === id) {
+                        current = index;
+                        return el;
+                    }
+                });
+                if (!address)
+                    throw 'not found';
+                address = Object.assign(Object.assign({}, address), body);
+                console.log(address);
+                user.addresses[current] = address;
+                yield user.updateOne({});
+                return address._id;
+            }
+            catch (error) {
+                throw error;
+            }
+        });
+    }
     setAddress(id, json) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -45,7 +85,9 @@ class ProfileCrud {
                 if (!user)
                     throw "User not found";
                 const addressSelected = user.addresses.find(el => el.address === json.address);
-                return addressSelected === null || addressSelected === void 0 ? void 0 : addressSelected._id;
+                if (!addressSelected)
+                    throw 'address undefined';
+                return addressSelected;
             }
             catch (error) {
                 throw error;

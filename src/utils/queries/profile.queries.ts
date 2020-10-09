@@ -59,13 +59,14 @@ class ProfileCrud implements CrudAttributes<IUser>{
             throw error
         }
     }
-    async setAddress(id: string, json: any): Promise<string> {
+    async setAddress(id: string, json: any): Promise<IAddress> {
         try {
             const user = await User
                 .findOneAndUpdate({ _id: id }, { $push: { addresses: json } }, { new: true })
             if (!user) throw "User not found"
             const addressSelected = user.addresses.find(el => el.address === json.address)
-            return addressSelected?._id
+            if(!addressSelected) throw 'address undefined'
+            return addressSelected
 
         } catch (error) {
             throw error

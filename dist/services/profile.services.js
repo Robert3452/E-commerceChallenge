@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signup = exports.signin = exports.unSetAvatar = exports.setAvatar = exports.saveShoppingCart = void 0;
+exports.signup = exports.signin = exports.unSetAvatar = exports.setAvatar = void 0;
 const boom_1 = __importDefault(require("@hapi/boom"));
 const passport_1 = __importDefault(require("passport"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
@@ -43,19 +43,6 @@ const cloudinary = __importStar(require("../config/cloudinary"));
 const profileCrud = new profile_queries_1.default();
 const uploader = (path) => __awaiter(void 0, void 0, void 0, function* () { return yield cloudinary.uploads(path, 'avatar'); });
 const deleteImage = (publicIds) => __awaiter(void 0, void 0, void 0, function* () { return yield cloudinary.deleteFiles(publicIds); });
-exports.saveShoppingCart = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = req.user || null;
-    const { body: shoppingCart } = req;
-    try {
-        const updatedUser = yield profileCrud.update(user._id, { shoppingCart });
-        return res.status(200).json({
-            message: "shoppingCart saved successfully",
-        });
-    }
-    catch (error) {
-        return next(error);
-    }
-});
 exports.setAvatar = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
     const { path } = file;

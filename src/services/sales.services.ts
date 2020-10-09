@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import ProductCrud from '../utils/queries/product.queries';
-import boom from '@hapi/boom';
-
+import boom, { badRequest } from '@hapi/boom';
+import { round2Decimals } from '../utils/others/round';
 import ProfileCrud from '../utils/queries/profile.queries';
 
 import PaymenyModes from '../utils/paymentsModes';
@@ -11,7 +11,6 @@ const profileCrud = new ProfileCrud();
 const salesCrud = new SalesCrud();
 const productCrud = new ProductCrud();
 const paymentModes = new PaymenyModes();
-
 
 interface IAddressRequest {
     id: string,
@@ -24,8 +23,7 @@ interface IAddressRequest {
     district: string,
 }
 
-
-const registerAddress = async (user: any, address: IAddressRequest): Promise<string> => {
+const registerAddress = async (user: any, address: IAddressRequest): Promise<any> => {
 
     let idAddress = address.id;
     try {
@@ -33,19 +31,22 @@ const registerAddress = async (user: any, address: IAddressRequest): Promise<str
         if (!foundUser) throw 'User not found '
 
         if (idAddress) {
+            console.log('there is an address')
             const addressFound =
                 foundUser
                     .addresses
-                    .find(element => element._id === idAddress)
+                    .find(element => {
+                        console.log(element)
+                        return `${element._id}` === idAddress;
+                    })
 
             if (!addressFound && !address.address) throw 'address not found '
 
-            return idAddress;
+            return addressFound;
         }
         if (Object.getOwnPropertyNames(address).length < 2) throw 'Address body request not found'
 
-        idAddress = await profileCrud.setAddress(foundUser._id, address)
-        return idAddress
+        return await profileCrud.setAddress(foundUser._id, address)
 
     } catch (error) {
         throw error
@@ -58,19 +59,22 @@ export const buy = async (req: Request, res: Response, next: NextFunction) => {
         shoppingCart,
         total,
         phone,
-        idAddress,
-        paymentType: { type, card_number, cvv, expiration_month, expiration_year, email
-        }
+        address,
+        paymentType: { type, card_number, cvv, expiration_month, expiration_year, email }
     } = req.body;
+    let idProds: string[] = new Array();
+    let idVariations: string[] = new Array();
+    let quantities: number[] = new Array();
 
+    var message
     const tokenData: any = req.user;
     const user = tokenData.user;
     var response;
+    var errorStockData ='';
 
     try {
-
         let sale = {
-            address: idAddress,
+            address: address,
             total,
             cancelationDate: new Date(),
             orders: shoppingCart,
@@ -82,13 +86,26 @@ export const buy = async (req: Request, res: Response, next: NextFunction) => {
             phone: user.phone || phone
 
         }
-        var message
+        shoppingCart.map((el: any) => {
+            idProds.push(el.idProduct);
+            idVariations.push(el.idVariation);
+            quantities.push(el.quantity);
+        });
+        const products = await productCrud.findManyVariations(idProds, idVariations)
+        products.map((el, index) => {
+            if (el.variations.stock < quantities[index])
+            errorStockData += `Insuficient stock for ${shoppingCart[index].name}, you can select less than ${shoppingCart[index].quantity} \n`  
+        });
+
+        if (errorStockData.length > 0) {
+            throw next(boom.badRequest(errorStockData))
+        }
         /** SWITCH Of PAYMENTTYPES  **/
         switch (type) {
             case "card":
-                response = await paymentModes.culqiPaymentMode(card_number, cvv, expiration_month, expiration_year, email, Math.round(total) / 100);
+                response = await paymentModes.culqiPaymentMode(card_number, cvv, expiration_month, expiration_year, email, round2Decimals(total));
                 /**UPDATE THE STOCK PENDANT*/
-                // await productCrud.updateDetails(idProds, idVariations, quantities);
+                await productCrud.updateDetails(idProds, idVariations, quantities);
                 message = await salesCrud.store(sale);
                 break;
             case "cash":
@@ -99,13 +116,12 @@ export const buy = async (req: Request, res: Response, next: NextFunction) => {
                 break;
         }
 
-        return res.status(200).json({ outcome: response, message: message || "Nothing to do" });
+        return res.status(200).json({ outcome: response.outcome, message: { advice: "Sale successfully completed", data: message } });
 
     } catch (error) {
         return next(error)
     }
 }
-
 
 export const setAddress = async (req: Request, res: Response, next: NextFunction) => {
     let { body: address } = req;
@@ -113,13 +129,14 @@ export const setAddress = async (req: Request, res: Response, next: NextFunction
     let user = tokenData.user;
 
     try {
-        const idAddress = await registerAddress(user, address);
+        const selectedAddress = await registerAddress(user, address);
 
-        return res.status(200).json({ address: idAddress });
+        return res.status(200).json({ address: selectedAddress });
     } catch (error) {
         return next(error)
     }
 }
+
 export const makeCart = async (req: Request, res: Response, next: NextFunction) => {
 
     const { body: shoppingCart } = req;
@@ -139,7 +156,7 @@ export const makeCart = async (req: Request, res: Response, next: NextFunction) 
         const products = await productCrud.findManyVariations(idProds, idVariations)
 
         products.map((product, index) => {
-            subTotals.push(product.variations.price * quantities[index]);
+            subTotals.push(round2Decimals(product.variations.price * quantities[index]));
             total += subTotals[index];
 
             shoppingCart[index] = {

@@ -31,7 +31,6 @@ const router = express_1.Router();
 const jwtMiddleware = passport_1.default.authenticate('jwt', { session: false });
 router.post('/auth/signin', profileServices.signin);
 router.post('/auth/signup', profileServices.signup);
-router.post('/save-cart', jwtMiddleware, profileServices.saveShoppingCart);
 router.put('/unset-avatar', jwtMiddleware, profileServices.unSetAvatar);
 router.put('/avatar', jwtMiddleware, multerMid_1.uploadFile.single('image'), profileServices.setAvatar);
 exports.default = router;

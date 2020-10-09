@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createToken = void 0;
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const config_1 = __importDefault(require("../../config"));
+const Culqi_1 = __importDefault(require("./Culqi"));
 const publicKey = config_1.default.culqiPublicKey;
 const apiToken = "https://secure.culqi.com/v2/tokens";
 exports.createToken = (card_number, cvv, expiration_month, expiration_year, email) => __awaiter(void 0, void 0, void 0, function* () {
@@ -37,10 +38,10 @@ exports.createToken = (card_number, cvv, expiration_month, expiration_year, emai
         const response = yield node_fetch_1.default(apiToken, request);
         const json = yield response.json();
         if (json.object === 'error')
-            throw json;
+            throw new Culqi_1.default(json);
         return json;
     }
     catch (error) {
-        return error;
+        throw error;
     }
 });

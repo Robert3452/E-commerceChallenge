@@ -9,9 +9,6 @@ const jwtMiddleware = passport.authenticate('jwt', { session: false });
 
 router.post('/auth/signin', profileServices.signin);
 router.post('/auth/signup', profileServices.signup);
-router.post('/save-cart',
-    jwtMiddleware,
-    profileServices.saveShoppingCart);
 router.put('/unset-avatar',
     jwtMiddleware,
     profileServices.unSetAvatar);

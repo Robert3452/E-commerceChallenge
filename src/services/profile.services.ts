@@ -14,20 +14,6 @@ const profileCrud = new ProfileCrud();
 const uploader = async (path: string) => await cloudinary.uploads(path, 'avatar');
 const deleteImage = async (publicIds: [string]) => await cloudinary.deleteFiles(publicIds);
 
-export const saveShoppingCart = async (req: Request, res: Response, next: NextFunction) => {
-    const user: any = req.user || null;
-    const { body: shoppingCart } = req;
-    try {
-        const updatedUser = await profileCrud.update(user._id, { shoppingCart });
-        return res.status(200).json({
-            message: "shoppingCart saved successfully",
-        })
-    } catch (error) {
-        return next(error);
-    }
-
-}
-
 export const setAvatar = async (req: Request, res: Response, next: NextFunction) => {
     const file: any = req.file;
     const { path } = file;

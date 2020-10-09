@@ -13,7 +13,7 @@ export interface IVariation extends Document {
 export const variationSchema = new Schema({
     size: { type: String, required: true },
     color: { type: colorSchema, required: true },
-    stock: { type: Number, required: true },
+    stock: { type: Number, required: true, min: 0 },
     price: { type: Number, required: true },
     discounts: { type: [discountSchema] },
 })

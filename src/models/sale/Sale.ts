@@ -4,7 +4,7 @@ import { IUser } from '../User';
 import { IDetail, detailSchema } from './SaleDetail';
 
 export interface ISale extends Document {
-    address: IAddress['_id'],
+    address: IAddress,
     total: number,
     emissionDate: Date,
     cancelationDate: Date,
